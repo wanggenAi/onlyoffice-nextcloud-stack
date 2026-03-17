@@ -1,0 +1,159 @@
+services:
+  caddy:
+    image: caddy:2.9
+    container_name: edge-caddy
+    profiles: ["proxy"]
+    restart: unless-stopped
+    cpus: "${CADDY_CPUS:-0.5}"
+    mem_limit: "${CADDY_MEM_LIMIT:-512m}"
+    pids_limit: "${CADDY_PIDS_LIMIT:-256}"
+    logging:
+      driver: json-file
+      options:
+        max-size: "${LOG_MAX_SIZE:-10m}"
+        max-file: "${LOG_MAX_FILE:-5}"
+    depends_on:
+      - nextcloud
+      - onlyoffice-documentserver
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    environment:
+      - NEXTCLOUD_FQDN=${NEXTCLOUD_FQDN}
+      - ONLYOFFICE_FQDN=${ONLYOFFICE_FQDN}
+      - ACME_EMAIL=${ACME_EMAIL}
+    volumes:
+      - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${DATA_ROOT:-./.data}/caddy/data:/data
+      - ${DATA_ROOT:-./.data}/caddy/config:/config
+    networks:
+      - collaboration
+
+  db:
+    image: mariadb:11
+    container_name: nextcloud-db
+    restart: unless-stopped
+    cpus: "${DB_CPUS:-1.0}"
+    mem_limit: "${DB_MEM_LIMIT:-1g}"
+    pids_limit: "${DB_PIDS_LIMIT:-256}"
+    logging:
+      driver: json-file
+      options:
+        max-size: "${LOG_MAX_SIZE:-10m}"
+        max-file: "${LOG_MAX_FILE:-5}"
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${TZ}
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    volumes:
+      - ${DATA_ROOT:-./.data}/mariadb:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - collaboration
+
+  redis:
+    image: redis:7-alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+    cpus: "${REDIS_CPUS:-0.5}"
+    mem_limit: "${REDIS_MEM_LIMIT:-512m}"
+    pids_limit: "${REDIS_PIDS_LIMIT:-256}"
+    logging:
+      driver: json-file
+      options:
+        max-size: "${LOG_MAX_SIZE:-10m}"
+        max-file: "${LOG_MAX_FILE:-5}"
+    command: redis-server --appendonly yes
+    volumes:
+      - ${DATA_ROOT:-./.data}/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    networks:
+      - collaboration
+
+  nextcloud:
+    image: nextcloud:29-apache
+    container_name: nextcloud-app
+    restart: unless-stopped
+    cpus: "${NEXTCLOUD_CPUS:-2.0}"
+    mem_limit: "${NEXTCLOUD_MEM_LIMIT:-2g}"
+    pids_limit: "${NEXTCLOUD_PIDS_LIMIT:-512}"
+    logging:
+      driver: json-file
+      options:
+        max-size: "${LOG_MAX_SIZE:-10m}"
+        max-file: "${LOG_MAX_FILE:-5}"
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "${APP_BIND_ADDRESS:-0.0.0.0}:${NEXTCLOUD_PORT:-8080}:80"
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - REDIS_HOST=redis
+      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_TRUSTED_DOMAINS}
+      - TZ=${TZ}
+    volumes:
+      - ${DATA_ROOT:-./.data}/nextcloud:/var/www/html
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1/status.php >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - collaboration
+
+  onlyoffice-documentserver:
+    image: onlyoffice/documentserver:latest
+    container_name: onlyoffice-documentserver
+    restart: unless-stopped
+    cpus: "${ONLYOFFICE_CPUS:-2.0}"
+    mem_limit: "${ONLYOFFICE_MEM_LIMIT:-3g}"
+    pids_limit: "${ONLYOFFICE_PIDS_LIMIT:-512}"
+    logging:
+      driver: json-file
+      options:
+        max-size: "${LOG_MAX_SIZE:-10m}"
+        max-file: "${LOG_MAX_FILE:-5}"
+    depends_on:
+      - nextcloud
+    ports:
+      - "${APP_BIND_ADDRESS:-0.0.0.0}:${ONLYOFFICE_PORT:-8090}:80"
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=${ONLYOFFICE_JWT_SECRET}
+      - JWT_HEADER=AuthorizationJwt
+      - TZ=${TZ}
+    volumes:
+      - ${DATA_ROOT:-./.data}/onlyoffice/data:/var/www/onlyoffice/Data
+      - ${DATA_ROOT:-./.data}/onlyoffice/logs:/var/log/onlyoffice
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1/healthcheck >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    networks:
+      - collaboration
+
+networks:
+  collaboration:
+    driver: bridge

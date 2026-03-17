@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>OnlyOffice Community Solution Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.45; margin: 28px; }
+    h1, h2, h3 { color: #0f2d52; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; margin-top: 22px; }
+    h3 { font-size: 15px; margin-top: 16px; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0 18px; }
+    th, td { border: 1px solid #666; padding: 8px; vertical-align: top; }
+    th { background: #f3f6fb; }
+    .small { font-size: 12px; color: #444; }
+  </style>
+</head>
+<body>
+  <h1>OnlyOffice Community Solution Report</h1>
+  <p><strong>Project:</strong> onlyoffice-nextcloud-stack</p>
+  <p><strong>Student Goal:</strong> Find the most complete free/open-source alternative that is as close as possible to the commercial OnlyOffice experience.</p>
+  <p><strong>Date:</strong> March 17, 2026</p>
+
+  <h2>1. Problem Statement</h2>
+  <p>OnlyOffice has both commercial and community offerings. The assignment objective is not just to install a free version, but to design a practical, production-style solution that maximizes useful collaboration features while keeping licensing cost at zero.</p>
+
+  <h2>2. Evaluation Criteria</h2>
+  <ul>
+    <li>Real-time editing quality for DOCX/XLSX/PPTX</li>
+    <li>Multi-user collaboration support</li>
+    <li>Self-hosted deployment feasibility</li>
+    <li>Integration with file platform and permissions</li>
+    <li>Security controls (JWT, network isolation, HTTPS option)</li>
+    <li>Operational completeness (backup, restore, health checks, troubleshooting)</li>
+    <li>Total cost (license + operations)</li>
+  </ul>
+
+  <h2>3. Chosen Free Solution</h2>
+  <p><strong>Core stack:</strong></p>
+  <ul>
+    <li><strong>ONLYOFFICE Docs Community Edition</strong> (document editor engine)</li>
+    <li><strong>Nextcloud</strong> (files, sharing, users, web portal)</li>
+    <li><strong>MariaDB + Redis</strong> (Nextcloud data and cache/locking)</li>
+    <li><strong>Docker Compose</strong> (single-command deployment and reproducibility)</li>
+    <li><strong>Optional Caddy</strong> (HTTPS and reverse-proxy path when needed)</li>
+  </ul>
+  <p>This architecture reproduces the most important user experience of a commercial office collaboration platform, while staying fully self-hosted and license-free.</p>
+
+  <h2>4. Why This Is the Closest Practical Free Alternative</h2>
+  <ul>
+    <li>ONLYOFFICE CE provides strong Microsoft-format compatibility and browser editing experience.</li>
+    <li>Nextcloud adds user-facing product completeness: file management, sharing, web UI, app ecosystem.</li>
+    <li>JWT-secured integration between Nextcloud and ONLYOFFICE approximates enterprise integration behavior.</li>
+    <li>Operational scripts (up/check/configure/backup/restore) provide admin-level repeatability beyond a simple demo install.</li>
+  </ul>
+
+  <h2>5. Feature Comparison (Commercial Target vs Community Implementation)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Capability Area</th>
+        <th>Commercial Expectation</th>
+        <th>Implemented Community Solution</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Online DOCX/XLSX/PPTX editing</td>
+        <td>Full browser-based editors</td>
+        <td>ONLYOFFICE Docs CE integrated with Nextcloud</td>
+        <td>Achieved</td>
+      </tr>
+      <tr>
+        <td>Document collaboration</td>
+        <td>Concurrent editing and saving</td>
+        <td>Real-time editing through ONLYOFFICE + Nextcloud file backend</td>
+        <td>Achieved</td>
+      </tr>
+      <tr>
+        <td>Central file platform</td>
+        <td>Team storage, upload, permission-driven access</td>
+        <td>Nextcloud file management and sharing</td>
+        <td>Achieved</td>
+      </tr>
+      <tr>
+        <td>Secure app-to-app communication</td>
+        <td>Authenticated service integration</td>
+        <td>JWT secret synchronization + internal service URLs</td>
+        <td>Achieved</td>
+      </tr>
+      <tr>
+        <td>HTTPS and reverse proxy</td>
+        <td>TLS-enabled access</td>
+        <td>Optional Caddy profile with HTTPS mode</td>
+        <td>Achieved (optional mode)</td>
+      </tr>
+      <tr>
+        <td>Operations and recoverability</td>
+        <td>Repeatable deployment and recovery process</td>
+        <td>Documented scripts for start/check/backup/restore/troubleshooting</td>
+        <td>Achieved</td>
+      </tr>
+      <tr>
+        <td>Vendor enterprise support SLA</td>
+        <td>Official support contract</td>
+        <td>Community support only</td>
+        <td>Not included</td>
+      </tr>
+      <tr>
+        <td>Enterprise-only feature bundles</td>
+        <td>Certain advanced business/compliance/scale bundles</td>
+        <td>Depends on paid edition; not all are in CE</td>
+        <td>Partially limited</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>6. Implementation Highlights in This Project</h2>
+  <ul>
+    <li><strong>Two runtime modes:</strong>
+      <ul>
+        <li>HTTP over IP + ports (default for simple LAN demonstration)</li>
+        <li>HTTPS/domain mode (optional, with Caddy)</li>
+      </ul>
+    </li>
+    <li><strong>No-black-box configuration:</strong> integration is scripted and reproducible, not manual container edits.</li>
+    <li><strong>Robustness controls:</strong> resource limits, log rotation, health checks.</li>
+    <li><strong>Recovery controls:</strong> backup and restore scripts included.</li>
+  </ul>
+
+  <h2>7. Known Gaps and Honest Limits</h2>
+  <ul>
+    <li>This is a <strong>single-host v1 architecture</strong>; high-availability clustering is not part of the baseline.</li>
+    <li>Community solution has <strong>no official enterprise SLA</strong>.</li>
+    <li>Some features in paid enterprise bundles (depending on product edition/license terms) are outside this free implementation.</li>
+    <li>Without centralized PKI/MDM/AD policy, certificate trust rollout in HTTPS local-lab mode requires extra client-side work.</li>
+  </ul>
+
+  <h2>8. Cost and Value Conclusion</h2>
+  <p><strong>License Cost:</strong> 0 (community/open-source components)</p>
+  <p><strong>Operational Cost:</strong> VM resources + administrator time</p>
+  <p><strong>Conclusion:</strong> This project achieves a highly complete, practical, and free self-hosted office collaboration platform. It does not claim to be 100% identical to every enterprise paid feature, but it reaches the strongest feasible parity for a no-license-cost solution and is suitable for learning, demos, and small-to-medium self-hosted deployments.</p>
+
+  <h2>9. Next-Phase Improvements (Optional)</h2>
+  <ul>
+    <li>LDAP/AD integration for centralized user management</li>
+    <li>Automated backup scheduling (cron/systemd timer)</li>
+    <li>Monitoring and alerting (Prometheus/Grafana style stack)</li>
+    <li>Public-domain HTTPS deployment with ACME</li>
+    <li>Policy hardening and audit controls</li>
+  </ul>
+
+  <p class="small">This report documents the engineering decision process and the implemented replacement architecture, not a legal licensing statement. Final feature/legal scope must always be confirmed against current official product licensing terms.</p>
+</body>
+</html>
