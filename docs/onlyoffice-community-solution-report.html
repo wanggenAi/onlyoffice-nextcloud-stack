@@ -116,7 +116,38 @@
     </tbody>
   </table>
 
-  <h2>6. Implementation Highlights in This Project</h2>
+  <h2>6. Explicit Community vs Paid Limits (Important for Review)</h2>
+  <p>The following limits are the key reasons this solution is “closest practical free alternative” rather than full commercial parity:</p>
+  <ol>
+    <li><strong>Simultaneous editing connections:</strong><br/>
+      Community is limited to <strong>up to 20 simultaneous editing connections</strong>.<br/>
+      One opened editor tab counts as one connection.<br/>
+      After the limit is reached, additional documents open in <strong>read-only mode</strong>.
+    </li>
+    <li><strong>Recommended user scale:</strong><br/>
+      Community is listed as <strong>up to 20 recommended users</strong>.
+    </li>
+    <li><strong>Support model:</strong><br/>
+      Community support is via <strong>GitHub/Forum</strong> (no paid SLA by default).<br/>
+      Enterprise/Developer editions provide paid support options.
+    </li>
+    <li><strong>Branding / white-label:</strong><br/>
+      Community must keep original branding and copyright notices.<br/>
+      White-label capabilities are commercial.
+    </li>
+    <li><strong>License constraints for SaaS/proprietary products:</strong><br/>
+      Community uses AGPL v3; if used/modified in network software distribution, source code obligations apply.<br/>
+      Commercial licensing is needed for proprietary closed-source embedding.
+    </li>
+    <li><strong>Scale and enterprise controls:</strong><br/>
+      Community FAQ explicitly notes no clustering/enterprise scalability and fewer enterprise admin/security features compared to paid editions.
+    </li>
+    <li><strong>Mobile web editors and enterprise extras:</strong><br/>
+      Enterprise FAQ states mobile web editors and some enterprise-level options are part of paid tiers, not Community baseline.
+    </li>
+  </ol>
+
+  <h2>7. Implementation Highlights in This Project</h2>
   <ul>
     <li><strong>Two runtime modes:</strong>
       <ul>
@@ -129,7 +160,7 @@
     <li><strong>Recovery controls:</strong> backup and restore scripts included.</li>
   </ul>
 
-  <h2>7. Known Gaps and Honest Limits</h2>
+  <h2>8. Known Gaps and Honest Limits</h2>
   <ul>
     <li>This is a <strong>single-host v1 architecture</strong>; high-availability clustering is not part of the baseline.</li>
     <li>Community solution has <strong>no official enterprise SLA</strong>.</li>
@@ -137,12 +168,12 @@
     <li>Without centralized PKI/MDM/AD policy, certificate trust rollout in HTTPS local-lab mode requires extra client-side work.</li>
   </ul>
 
-  <h2>8. Cost and Value Conclusion</h2>
+  <h2>9. Cost and Value Conclusion</h2>
   <p><strong>License Cost:</strong> 0 (community/open-source components)</p>
   <p><strong>Operational Cost:</strong> VM resources + administrator time</p>
   <p><strong>Conclusion:</strong> This project achieves a highly complete, practical, and free self-hosted office collaboration platform. It does not claim to be 100% identical to every enterprise paid feature, but it reaches the strongest feasible parity for a no-license-cost solution and is suitable for learning, demos, and small-to-medium self-hosted deployments.</p>
 
-  <h2>9. Next-Phase Improvements (Optional)</h2>
+  <h2>10. Next-Phase Improvements (Optional)</h2>
   <ul>
     <li>LDAP/AD integration for centralized user management</li>
     <li>Automated backup scheduling (cron/systemd timer)</li>
@@ -152,5 +183,6 @@
   </ul>
 
   <p class="small">This report documents the engineering decision process and the implemented replacement architecture, not a legal licensing statement. Final feature/legal scope must always be confirmed against current official product licensing terms.</p>
+  <p class="small"><strong>Reference notes (official ONLYOFFICE pages):</strong> Docs Community Edition Licensing FAQ, ONLYOFFICE Docs editions comparison page, and Docs Enterprise FAQ.</p>
 </body>
 </html>

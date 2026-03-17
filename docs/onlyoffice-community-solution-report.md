@@ -49,7 +49,37 @@ This architecture reproduces the most important user experience of a commercial 
 | Vendor enterprise support SLA | Official support contract | Community support only | Not included |
 | Enterprise-only feature bundles | Advanced business/compliance/scale bundles | Depends on paid edition; not all are in CE | Partially limited |
 
-## 6. Implementation Highlights in This Project
+## 6. Explicit Community vs Paid Limits (Important for Review)
+
+The following limits are the key reasons this solution is “closest practical free alternative” rather than full commercial parity:
+
+1. **Simultaneous editing connections:**  
+   Community is limited to **up to 20 simultaneous editing connections**.  
+   In official wording, one opened editor tab counts as one connection.  
+   After the limit is reached, additional documents open in **read-only mode**.
+
+2. **Recommended user scale:**  
+   Community is listed as **up to 20 recommended users**.
+
+3. **Support model:**  
+   Community support is via **GitHub/Forum** (no paid SLA by default).  
+   Enterprise/Developer editions provide paid support options.
+
+4. **Branding / white-label:**  
+   Community must keep original branding and copyright notices.  
+   White-label capabilities are commercial.
+
+5. **License constraints for SaaS/proprietary products:**  
+   Community uses AGPL v3; if used/modified in network software distribution, source code obligations apply.  
+   Commercial licensing is needed for proprietary closed-source embedding.
+
+6. **Scale and enterprise controls:**  
+   Community FAQ explicitly notes no clustering/enterprise scalability and fewer enterprise admin/security features compared to paid editions.
+
+7. **Mobile web editors and enterprise extras:**  
+   Enterprise FAQ states mobile web editors and some enterprise-level options are part of paid tiers, not Community baseline.
+
+## 7. Implementation Highlights in This Project
 
 - Two runtime modes:
   - HTTP over IP + ports (default for simple LAN demonstration)
@@ -58,21 +88,21 @@ This architecture reproduces the most important user experience of a commercial 
 - Robustness controls: resource limits, log rotation, health checks.
 - Recovery controls: backup and restore scripts included.
 
-## 7. Known Gaps and Honest Limits
+## 8. Known Gaps and Honest Limits
 
 - This is a single-host v1 architecture; high-availability clustering is not part of the baseline.
 - Community solution has no official enterprise SLA.
 - Some features in paid enterprise bundles (depending on product edition/license terms) are outside this free implementation.
 - Without centralized PKI/MDM/AD policy, certificate trust rollout in HTTPS local-lab mode requires extra client-side work.
 
-## 8. Cost and Value Conclusion
+## 9. Cost and Value Conclusion
 
 - **License Cost:** 0 (community/open-source components)
 - **Operational Cost:** VM resources + administrator time
 
 **Conclusion:** This project achieves a highly complete, practical, and free self-hosted office collaboration platform. It does not claim to be 100% identical to every enterprise paid feature, but it reaches the strongest feasible parity for a no-license-cost solution and is suitable for learning, demos, and small-to-medium self-hosted deployments.
 
-## 9. Next-Phase Improvements (Optional)
+## 10. Next-Phase Improvements (Optional)
 
 - LDAP/AD integration for centralized user management
 - Automated backup scheduling (cron/systemd timer)
@@ -83,3 +113,9 @@ This architecture reproduces the most important user experience of a commercial 
 ---
 
 This report documents the engineering decision process and the implemented replacement architecture, not a legal licensing statement. Final feature/legal scope must always be confirmed against current official product licensing terms.
+
+## Reference Notes (official ONLYOFFICE pages)
+
+- Docs Community Edition Licensing FAQ (20-connection limit, AGPL, branding, support, common community limitations)
+- Compare ONLYOFFICE Docs editions (connection definition, read-only after limit, recommended user count, support tier differences)
+- Docs Enterprise Edition FAQ (mobile web editors and enterprise commercial scope notes)
