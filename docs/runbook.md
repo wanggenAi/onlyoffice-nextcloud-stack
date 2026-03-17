@@ -42,6 +42,11 @@ docker compose logs -f nextcloud onlyoffice-documentserver
 docker compose --profile proxy logs -f caddy
 ```
 
+Re-apply LDAP config (when LDAP values changed):
+```bash
+./scripts/configure-ldap.sh
+```
+
 ## 3. Backup
 
 Run backup:
@@ -139,3 +144,17 @@ Applies only when `ENABLE_CADDY=true` and `CADDY_SITE_SCHEME=https`.
 1. `df -h`
 2. Confirm log rotation values (`LOG_MAX_SIZE`, `LOG_MAX_FILE`)
 3. Trigger backup cleanup or increase disk
+
+### D) LDAP login/import issues
+1. Ensure LDAP server is reachable from Nextcloud container:
+   ```bash
+   docker compose exec nextcloud sh -lc "apt-get update >/dev/null 2>&1 || true; apt-get install -y ldap-utils >/dev/null 2>&1 || true; nc -zv <LDAP_HOST> <LDAP_PORT>"
+   ```
+2. Re-apply LDAP config:
+   ```bash
+   ./scripts/configure-ldap.sh
+   ```
+3. Test config id (default `s01`):
+   ```bash
+   docker compose exec -u www-data nextcloud php occ ldap:test-config s01
+   ```

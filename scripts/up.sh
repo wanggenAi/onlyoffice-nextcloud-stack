@@ -15,20 +15,22 @@ ENABLE_CADDY_VALUE="$(grep -E '^ENABLE_CADDY=' .env 2>/dev/null | tail -n1 | cut
 ENABLE_CADDY_VALUE="${ENABLE_CADDY_VALUE:-false}"
 CADDY_SITE_SCHEME_VALUE="$(grep -E '^CADDY_SITE_SCHEME=' .env 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
 CADDY_SITE_SCHEME_VALUE="${CADDY_SITE_SCHEME_VALUE:-http}"
+ENABLE_LDAP_VALUE="$(grep -E '^ENABLE_LDAP=' .env 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
+ENABLE_LDAP_VALUE="$(printf "%s" "${ENABLE_LDAP_VALUE:-false}" | tr '[:upper:]' '[:lower:]')"
 
 if [ "${CADDY_SITE_SCHEME_VALUE}" = "https" ] && [ "${ENABLE_CADDY_VALUE}" != "true" ]; then
   echo "Invalid config: HTTPS mode requires ENABLE_CADDY=true"
   exit 1
 fi
 
-echo "[1/6] Preparing storage directories..."
+echo "[1/8] Preparing storage directories..."
 ./scripts/init-storage.sh
 mkdir -p "${DATA_ROOT_VALUE}/caddy/data" "${DATA_ROOT_VALUE}/caddy/config"
 
-echo "[2/6] Pulling images..."
+echo "[2/8] Pulling images..."
 docker compose pull
 
-echo "[3/6] Starting stack..."
+echo "[3/8] Starting stack..."
 if [ "${ENABLE_CADDY_VALUE}" = "true" ]; then
   echo "ENABLE_CADDY=true -> starting with proxy profile"
   docker compose --profile proxy up -d
@@ -37,7 +39,7 @@ else
   docker compose up -d
 fi
 
-echo "[4/6] Waiting for services to become healthy..."
+echo "[4/8] Waiting for services to become healthy..."
 for i in $(seq 1 90); do
   nc_state="$(docker inspect -f '{{.State.Health.Status}}' nextcloud-app 2>/dev/null || echo starting)"
   oo_state="$(docker inspect -f '{{.State.Health.Status}}' onlyoffice-documentserver 2>/dev/null || echo starting)"
@@ -58,18 +60,25 @@ for i in $(seq 1 90); do
   sleep 2
 done
 
-echo "[5/6] Configuring Nextcloud + ONLYOFFICE integration..."
+echo "[5/8] Configuring Nextcloud + ONLYOFFICE integration..."
 ./scripts/configure-onlyoffice.sh
 ./scripts/configure-nextcloud-proxy.sh
 
-echo "[6/6] Restarting app services to apply config..."
+if [ "${ENABLE_LDAP_VALUE}" = "true" ]; then
+  echo "[6/8] Configuring LDAP integration..."
+  ./scripts/configure-ldap.sh
+else
+  echo "[6/8] LDAP integration disabled (ENABLE_LDAP=false)."
+fi
+
+echo "[7/8] Restarting app services to apply config..."
 if [ "${ENABLE_CADDY_VALUE}" = "true" ]; then
   docker compose restart nextcloud onlyoffice-documentserver caddy
 else
   docker compose restart nextcloud onlyoffice-documentserver
 fi
 
-echo "[7/7] Final status:"
+echo "[8/8] Final status:"
 docker compose ps
 
 cat <<'EOF'

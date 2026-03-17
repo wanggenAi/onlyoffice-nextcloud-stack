@@ -19,6 +19,7 @@ One unified deployment path: `./scripts/up.sh`
 ├── scripts
 │   ├── configure-onlyoffice.sh
 │   ├── configure-nextcloud-proxy.sh
+│   ├── configure-ldap.sh
 │   ├── init-storage.sh
 │   ├── up.sh
 │   ├── down.sh
@@ -50,6 +51,7 @@ One unified deployment path: `./scripts/up.sh`
    - Mode A (default): HTTP over IP (`http://SERVER_IP:8080` and `http://SERVER_IP:8090`)
    - Mode B (optional): HTTPS with domain + Caddy
    - `ENABLE_CADDY=false` for HTTP mode, `ENABLE_CADDY=true` for HTTPS/proxy mode
+   - set `ENABLE_LDAP=true` only when LDAP is ready and reachable
    - set strong secrets (`NEXTCLOUD_ADMIN_PASSWORD`, DB passwords, `ONLYOFFICE_JWT_SECRET`)
 4. Start stack:
    ```bash
@@ -75,6 +77,10 @@ Set it in `.env`:
 ```text
 ONLYOFFICE_JWT_SECRET=<generated-value>
 ```
+
+LDAP note:
+- If `ENABLE_LDAP=true`, `./scripts/up.sh` will auto-run LDAP configuration using values in `.env`.
+- Do not commit real LDAP bind passwords into git.
 
 See full steps in [docs/setup-guide.md](/Users/seker./onlyoffice-nextcloud-stack/docs/setup-guide.md).
 Operations runbook: [docs/runbook.md](/Users/seker./onlyoffice-nextcloud-stack/docs/runbook.md)
@@ -203,6 +209,28 @@ Result:
 
 When to run:
 - after changing FQDN/public URL/proxy settings in `.env`
+
+### `./scripts/configure-ldap.sh`
+
+Purpose:
+- configure Nextcloud LDAP/AD integration via `occ` (repeatable, no manual UI clicks).
+
+What it sets:
+- server, port, protocol (`LDAP_USE_SSL` / `LDAP_START_TLS`)
+- bind DN/user + bind password
+- base DN / users DN / groups DN
+- TLS verify policy (`LDAP_TLS_SKIP_VERIFY`)
+- group membership mapping (`LDAP_GROUP_MEMBER_ASSOC_ATTR`, default `member`)
+- group searchable attrs (`LDAP_ATTRIBUTES_FOR_GROUP_SEARCH`, default `cn`)
+- nested-group switch (`LDAP_NESTED_GROUPS`)
+- default AD-oriented user/group/login filters
+
+When it runs:
+- automatically during `./scripts/up.sh` when `ENABLE_LDAP=true`
+- manually when changing LDAP values:
+  ```bash
+  ./scripts/configure-ldap.sh
+  ```
 
 ### `./scripts/backup.sh`
 

@@ -38,6 +38,7 @@ Edit `.env`:
 - Set `DATA_ROOT` (persistent data path, e.g. `./.data` or `/opt/onlyoffice-nextcloud/data`)
 - Tune resource limits for your VM: `*_CPUS`, `*_MEM_LIMIT`
 - Tune log rotation: `LOG_MAX_SIZE`, `LOG_MAX_FILE`
+- Optional LDAP: set `ENABLE_LDAP=true` and fill `LDAP_*` fields if you want AD/LDAP login
 
 Default demo mode (HTTP over IP) values are:
 - `APP_BIND_ADDRESS=0.0.0.0`
@@ -142,6 +143,36 @@ This validates:
 - `ONLYOFFICE /healthcheck`
 - container-to-container reachability
 - effective Nextcloud ONLYOFFICE config snapshot
+- LDAP config snapshot (when `ENABLE_LDAP=true`)
+
+## 6.2 Configure LDAP (Optional)
+
+Set these in `.env`:
+- `ENABLE_LDAP=true`
+- `LDAP_HOST`, `LDAP_PORT`
+- `LDAP_USE_SSL` or `LDAP_START_TLS`
+- `LDAP_BIND_USER`, `LDAP_BIND_PASSWORD`
+- `LDAP_BASE_DN`
+- optional group mapping knobs:
+  - `LDAP_GROUP_MEMBER_ASSOC_ATTR` (default `member`)
+  - `LDAP_ATTRIBUTES_FOR_GROUP_SEARCH` (default `cn`)
+  - `LDAP_NESTED_GROUPS` (`true/false`)
+
+Then run:
+```bash
+./scripts/configure-ldap.sh
+```
+
+AD example values:
+- `LDAP_USE_SSL=true`
+- `LDAP_START_TLS=false`
+- `LDAP_BIND_USER=Administrator@EVMS.BSTU.EDU`
+- `LDAP_BASE_DN=DC=evms,DC=bstu,DC=edu`
+
+Security note:
+- `LDAP_TLS_SKIP_VERIFY=true` is convenient for lab/self-signed certs.
+- For production, prefer proper CA trust and set `LDAP_TLS_SKIP_VERIFY=false`.
+- Do not set both `LDAP_USE_SSL=true` and `LDAP_START_TLS=true` at the same time.
 
 ## 7. Milestone Test
 
