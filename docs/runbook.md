@@ -68,6 +68,22 @@ Notes:
 - requires confirmation (`YES`)
 - restores both DB and data root
 
+## 4.1 Full Uninstall (Destructive)
+
+```bash
+./scripts/purge.sh
+```
+
+Non-interactive:
+```bash
+./scripts/purge.sh --yes
+```
+
+Also remove `.env`:
+```bash
+./scripts/purge.sh --yes --remove-env
+```
+
 ## 5. Rolling Update
 
 ```bash

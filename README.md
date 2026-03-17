@@ -25,6 +25,7 @@ One unified deployment path: `./scripts/up.sh`
 │   ├── check-ready.sh
 │   ├── backup.sh
 │   ├── restore.sh
+│   ├── purge.sh
 │   ├── trust-local-ca.sh
 │   ├── trust-local-ca-macos.sh
 │   ├── trust-local-ca-linux.sh
@@ -238,6 +239,28 @@ Result:
 When to run:
 - disaster recovery
 - rollback after failed upgrade/change
+
+### `./scripts/purge.sh`
+
+Purpose:
+- fully remove this stack from the current host.
+
+What it removes:
+- compose containers/networks/anonymous volumes/images
+- `DATA_ROOT` directory from `.env` (default `./.data`)
+- `BACKUP_ROOT` directory from `.env` (default `./backups`)
+
+Safety:
+- requires typing `PURGE` unless `--yes` is provided
+- refuses to run if `DATA_ROOT` or `BACKUP_ROOT` is `/`
+
+Useful options:
+- `--yes` skip interactive confirmation
+- `--remove-env` also delete `.env`
+
+When to run:
+- clean uninstall
+- lab reset before fresh install
 
 ### `./scripts/trust-local-ca.sh`
 
